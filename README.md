@@ -2,7 +2,7 @@
 > These scripts utilize PAN OS api interface on Palo Alto Networks Firewall
 to get some information and print on terminal screen in a formatted way.
 
-1. *get_stats.py* : __prints values about resources such as CPU, sessions, buffer...__
+1. **get_stats.py** : _prints values about resources such as CPU, sessions, buffer..._
 
 ### Screenshots
 
