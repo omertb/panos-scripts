@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-"""Gets and Prints some system metrics
-about Palo Alto Networks Firewall Device
+"""Retrieves some system stats-metrics values from
+Palo Alto Networks Firewall utilizing
+PAN OS api interface.
 
 """
 import requests
