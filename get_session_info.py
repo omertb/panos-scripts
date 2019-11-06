@@ -1,15 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Prints established sessions according to entered
 source, destination IP addresses and destination port.
 
 """
 import requests
 import xmltodict
+from credential import *
 
 requests.packages.urllib3.disable_warnings()
 
-PANOS_IP_ADDR = ""
-PANOS_API_TOKEN = ""
+# if credential.py file is not available, uncomment, locate ip address and token
+#PANOS_IP_ADDR = ""
+#PANOS_API_TOKEN = ""
+
 url = "https://{}/api/".format(PANOS_IP_ADDR)
 
 

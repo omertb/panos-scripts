@@ -6,6 +6,8 @@ to get some information and print on terminal screen in a formatted way.
 
 2. **get_session_info.py :** _prints established sessions according to entered
 source, destination IP addresses and destination port._
+
+3. **get_arp_table.py :** _prints arp table_
 ### Screenshots
 
 #### 1. get_stats.py

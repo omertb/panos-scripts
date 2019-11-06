@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env pythons
 """Retrieves some system stats-metrics values from
 Palo Alto Networks Firewall utilizing
 PAN OS api interface.
@@ -7,11 +7,14 @@ PAN OS api interface.
 import requests
 import xmltodict
 import re
+from credential import *
 
 requests.packages.urllib3.disable_warnings()
 
-PANOS_IP_ADDR = ""
-PANOS_API_TOKEN = ""
+# if credential.py file is not available, uncomment, locate ip address and token
+#PANOS_IP_ADDR = ""
+#PANOS_API_TOKEN = ""
+
 url = "https://{}/api/".format(PANOS_IP_ADDR)
 
 
