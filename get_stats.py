@@ -47,7 +47,7 @@ def get_zone_protection_metrics():
     return outside_metrics_dict
 
 
-def get_sessions_info():
+def get_sessions_stats():
     querystring = {"type":"op",
                    "cmd":"<show><session><info></info></session></show>",
                    "key":PANOS_API_TOKEN}
@@ -87,8 +87,8 @@ def get_mgmt_cpu():
 # PRINT FUNCTIONS
 
 
-def print_sessions_info():
-    sessions_dict = get_sessions_info()
+def print_sessions_stats():
+    sessions_dict = get_sessions_stats()
     num_of_tcp_sessions = sessions_dict['num-tcp']
     num_of_udp_sessions = sessions_dict['num-udp']
     num_of_icmp_sessions = sessions_dict['num-icmp']
@@ -259,7 +259,7 @@ def print_zone_protection():
 
 def main():
 #    print_cpu_stats()
-    print_sessions_info()
+    print_sessions_stats()
 #    print_zone_protection()
 
 
