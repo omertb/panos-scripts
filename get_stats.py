@@ -1,4 +1,4 @@
-#!/usr/bin/env pythons
+#!/usr/bin/env python3
 """Retrieves some system stats-metrics values from
 Palo Alto Networks Firewall utilizing
 PAN OS api interface.
