@@ -6,6 +6,11 @@ source, destination IP addresses and destination port.
 import requests
 import xmltodict
 from credential import *
+# my local files:
+from ipportvalidation import *
+from get_security_rule import get_security_rule
+from get_security_rule import print_security_rule
+
 
 requests.packages.urllib3.disable_warnings()
 
@@ -14,6 +19,8 @@ requests.packages.urllib3.disable_warnings()
 #PANOS_API_TOKEN = ""
 
 url = "https://{}/api/".format(PANOS_IP_ADDR)
+
+PROTO_DICT = {6: 'TCP', 17: 'UDP', 1: 'ICMP', 50: 'ESP'}
 
 
 class colors:
@@ -33,48 +40,6 @@ class colors:
         black = '\033[40m'
         red = '\033[41m'
         green = '\033[42m'
-
-
-class IsValid:
-    @staticmethod
-    def addr(ip_addr):
-        octets = ip_addr.split(".")
-        if len(octets) != 4:
-            # print "must have 4 octets!"
-            return False
-        else:
-            for i, octet in enumerate(octets):
-                try:
-                    octets[i] = int(octet)
-                except ValueError:
-                    # invalid input if not convertible to integer
-                    return False
-            first_octet, second_octet, third_octet, fourth_octet = octets
-            valid_ip = True
-            if first_octet < 1:
-                valid_ip = False
-            elif first_octet > 223:
-                valid_ip = False
-            elif first_octet == 127:
-                valid_ip = False
-            if first_octet == 169 and second_octet == 254:
-                valid_ip = False
-            # Check 2nd - 4th octets
-            for octet in (second_octet, third_octet, fourth_octet):
-                if (octet < 0) or (octet > 255):
-                    valid_ip = False
-        return valid_ip
-
-    @staticmethod
-    def port(port):
-        try:
-            port_int = int(port)
-        except ValueError:
-            return False
-        if 0 < port_int < 65536:
-            return True
-        else:
-            return False
 
 
 def get_session_info(src, dst, dport) -> dict:
@@ -100,7 +65,6 @@ def get_session_info(src, dst, dport) -> dict:
 
 
 def print_session_table(sessions):
-    proto_list = {6: 'TCP', 17: 'UDP', 1: 'ICMP', 50: 'ESP'}
     heading = "{:^15} {:^10} {:^15} {:^10} {:^30} {:^5} {:^8} {:^15} {:^10} {:^15} {:^10}".format("Src IP", "Src Port",
                                                                                               "Dst IP", "Dst Port",
                                                                                               "Application", "Proto",
@@ -121,6 +85,8 @@ def print_session_table(sessions):
     file.write(heading + "\n")
 
     for entry in sessions:
+        if type(sessions) is dict:
+            entry = sessions
         pnum = int(entry['proto'])
         b_int = int(entry['total-byte-count'])
         if 1024 < b_int < 1024*1024:
@@ -134,7 +100,7 @@ def print_session_table(sessions):
         sport = entry['sport']
         dport = entry['dport']
         app = entry['application']
-        proto = proto_list[pnum]
+        proto = PROTO_DICT[pnum]
         xsource = entry['xsource'] if entry['srcnat'] == 'True' else ""
         xsport = entry['xsport'] if entry['srcnat'] == 'True' else ""
         xdst = entry['xdst'] if entry['dstnat'] == 'True' else ""
@@ -145,6 +111,12 @@ def print_session_table(sessions):
                                                                                                   xsport, xdst, xdport)
         print(colors.fg.green + line + colors.reset)
         file.write(line + "\n")
+
+        # break loop, because if there is one entry, sessions is not a list but dictionary
+        if type(sessions) is dict:
+            break
+
+    file.close()
 
 
 def main():
@@ -174,14 +146,36 @@ def main():
             continue
         break
 
-#    src = ""
-#    dst = ""
-#    dport = ""
     session_list = get_session_info(src, dst, dport)
+
+    p_num = ""  # protocol number is needed for get_security_rule
+
     if session_list is None:
         print("No session found.")
     else:
         print_session_table(session_list['entry'])
+        if type(session_list['entry']) is dict:
+            p_num = session_list['entry']['proto']
+
+    # print related security rules if all entered
+    # don't forget to import and locate the "get_security_rule.py" file
+    # if not available, comment out below
+    #####################################
+    if src and dst and dport:
+        if not p_num:
+            proto_dict = {value: str(key) for key, value in PROTO_DICT.items()}  # invert key value pairs
+            while True:
+                proto = input("{:<50} {}".format("Enter Valid Protocol (TCP, UDP, ICMP or ESP)", ": "))
+                try:
+                    p_num = proto_dict[proto.upper()]
+                    break
+                except KeyError:
+                    print("Not a valid input, Try Again!\n")
+                    continue
+
+        sec_rules_list = get_security_rule(src, dst, dport, p_num)
+        print_security_rule(sec_rules_list)
+    #####################################
 
 
 if __name__ == "__main__":
