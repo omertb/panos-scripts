@@ -22,12 +22,32 @@ def get_p1_tunnels():
     p1_list = response_dict['response']['result']['entry']
     return p1_list
 
+
 def get_p2_tunnels():
     querystring = {"type": "op", "cmd": "<show><vpn><ipsec-sa><summary></summary></ipsec-sa></vpn></show>", "key":PANOS_API_TOKEN}
     response = requests.request("GET", url, params=querystring, verify=False)
     response_dict = xmltodict.parse(response.text, dict_constructor=dict)
     p2_list = response_dict['response']['result']['entries']['entry']
     return p2_list
+
+
+def get_disconnected_tunnels():
+    querystring = {"type": "op", "cmd": "<show><vpn><tunnel></tunnel></vpn></show>", "key":PANOS_API_TOKEN}
+    response = requests.request("GET", url, params=querystring, verify=False)
+    response_dict = xmltodict.parse(response.text, dict_constructor=dict)
+    all_tunnels_dict = response_dict['response']['result']['entries']['entry']
+    connected_tunnels_dict = get_p2_tunnels()
+    connected_tunnels_list = []
+    for item in connected_tunnels_dict:
+        connected_tunnels_list.append(item['name'])
+    print("#" * 50)
+    print("Currently Non-Established Tunnels:")
+    print("-" * 50)
+    for tunnel in all_tunnels_dict:
+        if tunnel['name'] not in connected_tunnels_list:
+            print(tunnel['name'])
+    print("#" * 50)
+
 
 def print_p1_tunnels():
     vpn_p1_list = get_p1_tunnels()
@@ -38,6 +58,7 @@ def print_p1_tunnels():
         created = entry['created']
         expires = entry['expires']
         print("{:<20} {:>20} {:>20}".format(name, created, expires))
+
 
 
 def print_p2_tunnels():
@@ -54,6 +75,8 @@ def print_p2_tunnels():
 def main():
     print_p1_tunnels()
     print_p2_tunnels()
+    print()
+    get_disconnected_tunnels()
 
 
 if __name__ == '__main__':
