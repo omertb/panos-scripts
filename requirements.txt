@@ -3,5 +3,5 @@ chardet==3.0.4
 idna==2.8
 requests==2.22.0
 untangle==1.1.1
-urllib3==1.25.6
+urllib3==1.25.8
 xmltodict==0.12.0
